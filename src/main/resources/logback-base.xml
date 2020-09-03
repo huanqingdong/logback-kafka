@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+    <!--<property resource="application-${env}.properties"/>-->
+    <property name="pattern" value="%d %5p %20.20t [%X{TID}] %m [%c] %n"/>
+
+    <!-- 控制台打印 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder charset="utf-8">
+            <pattern>${pattern}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 文件日志 -->
+    <if condition='isDefined("log.base-path")'>
+        <then>
+            <appender name="rollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                    <fileNamePattern>${log.base-path}/${log.kafka.system}/%d{yyyy-MM-dd}.log
+                    </fileNamePattern>
+                    <maxHistory>10</maxHistory>
+                </rollingPolicy>
+                <encoder>
+                    <pattern>${pattern}</pattern>
+                </encoder>
+            </appender>
+        </then>
+    </if>
+
+    <!-- 根据是否存在bootstrap-servers来开启kerberos -->
+    <if condition='isDefined("log.kafka.bootstrap-servers")'>
+        <then>
+            <appender neverBlock="true" name="KafkaAppender"
+                      class="com.github.danielwegener.logback.kafka.KafkaAppender">
+                <encoder class="com.github.danielwegener.logback.kafka.encoding.LayoutKafkaMessageEncoder">
+                    <layout class="net.logstash.logback.layout.LogstashLayout">
+                        <includeMdcKeyName>TID</includeMdcKeyName>
+                        <!-- <includeContext>true</includeContext>
+                        <includeCallerData>true</includeCallerData> -->
+                        <customFields>{"system":"${log.kafka.system}"}</customFields>
+                        <fieldNames class="net.logstash.logback.fieldnames.ShortenedFieldNames"/>
+                    </layout>
+                </encoder>
+                <topic>${log.kafka.topic}</topic>
+                <keyingStrategy class="com.github.danielwegener.logback.kafka.keying.HostNameKeyingStrategy"/>
+                <deliveryStrategy class="com.github.danielwegener.logback.kafka.delivery.AsynchronousDeliveryStrategy"/>
+                <producerConfig>bootstrap.servers=${log.kafka.bootstrap-servers}</producerConfig>
+                <!-- 如果配置了sasl-jaas-config属性,则使用kerberos认证 -->
+                <if condition='isDefined("log.kafka.sasl-jaas-config")'>
+                    <then>
+                        <producerConfig>security.protocol=SASL_PLAINTEXT</producerConfig>
+                        <producerConfig>sasl.jaas.config=${log.kafka.sasl-jaas-config}</producerConfig>
+                    </then>
+                </if>
+            </appender>
+
+            <!-- 异步输出 -->
+            <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+                <appender-ref ref="KafkaAppender"/>
+                <neverBlock>true</neverBlock>
+            </appender>
+        </then>
+    </if>
+
+    <!-- SQL相关日志输出-->
+    <logger name="org.springframework.jdbc.core.JdbcTemplate" level="DEBUG"/>
+    <logger name="org.springframework.jdbc.core.StatementCreatorUtils" level="Trace"/>
+
+    <root level="INFO">
+        <if condition='!"true".equals(p("log.stdout.disable"))'>
+            <then>
+                <appender-ref ref="STDOUT"/>
+            </then>
+        </if>
+        <if condition='isDefined("log.base-path")'>
+            <then>
+                <appender-ref ref="rollingFileAppender"/>
+            </then>
+        </if>
+        <if condition='isDefined("log.kafka.bootstrap-servers")'>
+            <then>
+                <appender-ref ref="ASYNC"/>
+            </then>
+        </if>
+    </root>
+</included>

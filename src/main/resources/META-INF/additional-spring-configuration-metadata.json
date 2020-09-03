@@ -1,0 +1,110 @@
+{
+  "groups": [
+    {
+      "name": "log"
+    }
+  ],
+  "properties": [
+    {
+      "name": "log.kafka.bootstrap-servers",
+      "type": "java.lang.String",
+      "description": "日志写入kafka的服务器地址,只要配置此属性就会开启日志写入kafka."
+    },
+    {
+      "name": "log.kafka.sasl-jaas-config",
+      "type": "java.lang.String",
+      "description": "kerberos配置"
+    },
+    {
+      "name": "log.kafka.system",
+      "type": "java.lang.String",
+      "description": "应用名称,用于标识文件路径以及es中的索引名称."
+    },
+    {
+      "name": "log.kafka.topic",
+      "type": "java.lang.String",
+      "description": "记录日志的kafka主题."
+    },
+    {
+      "name": "log.stdout.disable",
+      "type": "java.lang.String",
+      "description": "是否开启控制台日志输出[true|false],默认开启."
+    },
+    {
+      "name": "log.base-path",
+      "type": "java.lang.String",
+      "description": "文件日志根路径,只要配置了根路径就会开启文件日志."
+    }
+  ],
+  "hints": [
+    {
+      "name": "log.kafka.bootstrap-servers",
+      "values": [
+        {
+          "value": "192.168.1.14:9092",
+          "description": "开发环境配置."
+        },
+        {
+          "value": "kafka-test01.nosql.tech:9092,kafka-test02.nosql.tech:9092,kafka-test03.nosql.tech:9092",
+          "description": "测试环境配置."
+        },
+        {
+          "value":  "kafka-prod01.nosql.tech:9092,kafka-prod02.nosql.tech:9092,kafka-prod03.nosql.tech:9092",
+          "description": "测试环境配置."
+        }
+      ]
+    },
+    {
+      "name": "log.kafka.sasl-jaas-config",
+      "values": [
+        {
+          "value": "com.sun.security.auth.module.Krb5LoginModule required serviceName=\"kafka\" useKeyTab=true keyTab=\"/etc/cert/kafkaUser.keytab\" principal=\"kafkaUser\";",
+          "description": "KafkaUser配置."
+        }
+      ]
+    },
+    {
+      "name": "log.kafka.topic",
+      "values": [
+        {
+          "value": "log_kafka_dev",
+          "description": "开发环境主题."
+        },
+        {
+          "value": "log_kafka_test",
+          "description": "测试环境主题."
+        },
+        {
+          "value": "log_kafka_prod",
+          "description": "生产环境主题."
+        }
+      ]
+    },
+    {
+      "name": "log.stdout.disable",
+      "values": [
+        {
+          "value": "true",
+          "description": "关闭控制台日志."
+        },
+        {
+          "value": "false",
+          "description": "开启控制台日志."
+        }
+      ]
+    },
+    {
+      "name": "log.base-path",
+      "values": [
+        {
+          "value": "D://logs",
+          "description": "Windows日志保存位置."
+        },
+        {
+          "value": "/root/logs",
+          "description": "Linux日志保存位置."
+        }
+      ]
+    }
+  ]
+}
