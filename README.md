@@ -1,9 +1,14 @@
 ## 日志写入kafka通用模块
+完成java日志写入kafka,以便logstash将日志抽取到elasticsearch,进行日志分析.
 
-支持[springboot](#springboot项目使用) 和 [非springboot](#非springboot项目使用)两种类型的java项目
+关于ELK日志分析平台搭建请参照[个人博客](https://blog.csdn.net/huanqingdong/article/details/108303820)
+
+支持[springboot](#springboot项目使用) 和 [maven](#maven项目使用)两种类型的java项目
 
 
 ### springboot项目使用
+
+[**示例项目**](https://github.com/huanqingdong/logback-kafka-springboot)
 
 #### 1. 引入maven依赖
 
@@ -76,7 +81,9 @@ log:
     system: logback-kafka-demo
 ```
 
-### 非springboot项目使用
+### maven项目使用
+
+[**示例项目**](https://github.com/huanqingdong/logback-kafka-maven)
 
 #### 1. 引入maven依赖
 
